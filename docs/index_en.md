@@ -1,37 +1,33 @@
 ---
-title: ZZZ
-identifier: intranda_step_ZZZ
-description: Step Plugin for ZZZ
-published: false
+title: METS Enhancer
+identifier: intranda_step_mets_enhancer
+description: Step Plugin for the automatic enhancement of METS files
+published: true
 ---
 
 ## Introduction
-This documentation explains the plugin for ZZZ.
+This documentation explains the automatic enrichment of data in the METS file with configurable pagination.
 
 ## Installation
 To be able to use the plugin, the following files must be installed:
 
 ```bash
-/opt/digiverso/goobi/plugins/step/plugin-step-ZZZ-base.jar
-/opt/digiverso/goobi/plugins/GUI/plugin-step-ZZZ-gui.jar
-/opt/digiverso/goobi/config/plugin_intranda_step_ZZZ.xml
+/opt/digiverso/goobi/plugins/plugin-step-mets-enhancer-base-24.03-SNAPSHOT.jar
+/opt/digiverso/goobi/config/plugin_intranda_step_mets_enhancer.xml
 ```
 
-Once the plugin has been installed, it can be selected within the workflow for the respective work steps and thus executed automatically. A workflow could look like the following example:
-
-![Example of a workflow structure](screen1_en.png)
+After installing the plugin, it can be selected within the workflow for the respective steps and thus executed automatically.
 
 To use the plugin, it must be selected in a workflow step:
 
-![Configuration of the workflow step for using the plugin](screen2_en.png)
+![Configuration of the workflow step for using the plugin](screen1_en.png)
 
 
 ## Overview and functionality
-ZZZ
-
+The plugin opens the METS file and enriches it with metadata from the images contained in the media folder. Additionally, a collection can be automatically added if none is already defined in the METS file. Furthermore, pagination and other metadata can be added through configuration.
 
 ## Configuration
-The plugin is configured in the file `plugin_intranda_step_ZZZ.xml` as shown here:
+The plugin is configured in the file `plugin_intranda_step_mets_enhancer.xml` as shown here:
 
 {{CONFIG_CONTENT}}
 
@@ -39,30 +35,6 @@ The plugin is configured in the file `plugin_intranda_step_ZZZ.xml` as shown her
 
 Parameter               | Explanation
 ------------------------|------------------------------------
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
-``                      | 
+| `<createPagination>`    | Here, a pagination can be created by setting the value to `true`. This can also be configured through the `type`. Pagination can be `uncounted`, `roman`, `ROMAN`, or `arabic`. |
+| `<collection>`          | Here, you can specify the value that will be entered as `collection` in the METS file, if none exists yet.                 |
+| `<addMetadata>`         | Here, you can add additional values to the configuration. The `type` must correspond to a known metadata type, and `value` can be set freely. |

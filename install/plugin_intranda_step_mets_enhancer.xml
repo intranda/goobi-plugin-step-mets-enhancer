@@ -12,10 +12,21 @@
         <project>*</project>
         <step>*</step>
         
-        <!-- sample parameter -->
-        <value>test</value>
-        <!-- display button to finish the task directly from within the entered plugin -->
-        <allowTaskFinishButtons>true</allowTaskFinishButtons>
+        
+        <!-- types:
+        	- uncounted
+        	- ROMAN
+        	- roman
+        	- arabic
+         -->
+         
+        <createPagination type = "arabic">true</createPagination>
+        
+        <collection>Maps</collection>
+		
+		<addMetadata type="singleDigCollection" value="17th century" />
+		<addMetadata type="singleDigCollection" value="18th century" />
+        
     </config>
 
 </config_plugin>
