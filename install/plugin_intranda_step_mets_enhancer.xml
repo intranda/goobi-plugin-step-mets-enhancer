@@ -22,10 +22,8 @@
          
         <createPagination type = "arabic">true</createPagination>
         
-        <collection>Maps</collection>
-		
-		<addMetadata type="singleDigCollection" value="17th century" />
-		<addMetadata type="singleDigCollection" value="18th century" />
+       
+		<addMetadata type="singleDigCollection" value="Maps" />
         
     </config>
 

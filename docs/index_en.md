@@ -24,7 +24,7 @@ To use the plugin, it must be selected in a workflow step:
 
 
 ## Overview and functionality
-The plugin opens the METS file and enriches it with metadata from the images contained in the media folder. Additionally, a collection can be automatically added if none is already defined in the METS file. Furthermore, pagination and other metadata can be added through configuration.
+The plugin opens the METS file and enriches it with metadata from the images contained in the media folder. Additionally, metadata from the rule set can be added automatically. Pagination and further metadata can also be included through configuration.
 
 ## Configuration
 The plugin is configured in the file `plugin_intranda_step_mets_enhancer.xml` as shown here:
@@ -36,5 +36,4 @@ The plugin is configured in the file `plugin_intranda_step_mets_enhancer.xml` as
 Parameter               | Explanation
 ------------------------|------------------------------------
 | `<createPagination>`    | Here, a pagination can be created by setting the value to `true`. This can also be configured through the `type`. Pagination can be `uncounted`, `roman`, `ROMAN`, or `arabic`. |
-| `<collection>`          | Here, you can specify the value that will be entered as `collection` in the METS file, if none exists yet.                 |
-| `<addMetadata>`         | Here, you can add additional values to the configuration. The `type` must correspond to a known metadata type, and `value` can be set freely. |
+| `<addMetadata>`         | Additional values can be added to the configuration here. The type must match a metadata type from the rule set, and value can be set freely. |

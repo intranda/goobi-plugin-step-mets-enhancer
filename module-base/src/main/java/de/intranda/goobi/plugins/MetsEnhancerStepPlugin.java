@@ -1,6 +1,8 @@
 package de.intranda.goobi.plugins;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 /**
  * This file is part of a plugin for Goobi - a Workflow tool for the support of mass digitization.
@@ -43,6 +45,7 @@ import org.goobi.production.plugin.interfaces.IStepPluginVersion2;
 
 import de.sub.goobi.config.ConfigPlugins;
 import de.sub.goobi.helper.Helper;
+import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.exceptions.SwapException;
 import lombok.Getter;
 import lombok.extern.log4j.Log4j2;
@@ -89,12 +92,8 @@ public class MetsEnhancerStepPlugin implements IStepPluginVersion2 {
 	private Step step;
 	@Getter
 	private Boolean createPagination;
-	@Getter 
-	private String configCollection;
 	@Getter
 	private String paginationType;
-	@Getter
-	private boolean allowTaskFinishButtons;
 	private String returnPath;
 	private Process process;
 	private Prefs prefs;
@@ -111,12 +110,9 @@ public class MetsEnhancerStepPlugin implements IStepPluginVersion2 {
 		// Get pagination type if pagination is enabled
 		createPagination = config.getBoolean("createPagination", false);
 		SubnodeConfiguration paginationTypeConfig = config.configurationAt("createPagination");
-		 // Retrieve the collection value out of the config
 		paginationType = paginationTypeConfig.getString("@type");
-		configCollection = config.getString("collection", null);
 		// Get process preferences (rule sets)
 		prefs = process.getRegelsatz().getPreferences();
-		allowTaskFinishButtons = config.getBoolean("allowTaskFinishButtons", false);
 		log.info("MetsEnhancer step plugin initialized");
 	}
 
@@ -154,7 +150,16 @@ public class MetsEnhancerStepPlugin implements IStepPluginVersion2 {
 	public HashMap<String, StepReturnValue> validate() {
 		return null;
 	}
-
+	/**
+	 * Retrieves multiple values and calls additional methods as needed.
+	 * 
+	 * This method gathers metadata information and calls the `createDefaultsValues` function.
+	 * Depending on the value specified in the configuration file, it may also call 
+	 * the `createPagination` method. If metadata values are specified in the config file, 
+	 * each one is added.
+	 * 
+	 * Finally, the metadata information is saved in the `meta.xml` file.
+	 */
 	@Override
 	public boolean execute() {
 		try {
@@ -173,15 +178,6 @@ public class MetsEnhancerStepPlugin implements IStepPluginVersion2 {
 			if (createPagination) {
 				createPagination(physicalElement, rootElement, dd);
 			}
-			// Check if there is already a "singleDigCollection" value and if not replace it with the collections value in the config
-			MetadataType mdt = prefs.getMetadataTypeByName("singleDigCollection");
-            List<? extends Metadata> mdList = rootElement.getAllMetadataByType(mdt);
-            if (mdList == null || mdList.isEmpty()) {
-
-                Metadata collection = new Metadata(mdt);
-                collection.setValue(configCollection);
-                rootElement.addMetadata(collection);
-            }
 
 			// Add Metadata out of the config
 			List<HierarchicalConfiguration> metadataConfigs = config.configurationsAt("addMetadata");
@@ -189,9 +185,9 @@ public class MetsEnhancerStepPlugin implements IStepPluginVersion2 {
 				String type = metadataConfig.getString("@type");
 				String value = metadataConfig.getString("@value");
 				MetadataType mdt2 = prefs.getMetadataTypeByName(type);
-				Metadata collection = new Metadata(mdt2);
-				collection.setValue(value);
-				rootElement.addMetadata(collection);
+				Metadata metadataToAdd = new Metadata(mdt2);
+				metadataToAdd.setValue(value);
+				rootElement.addMetadata(metadataToAdd);
 			}
 			process.writeMetadataFile(ff);
 		} catch (PreferencesException | ReadException | IOException | SwapException | TypeNotAllowedForParentException
@@ -202,7 +198,12 @@ public class MetsEnhancerStepPlugin implements IStepPluginVersion2 {
 		}
 		return true;
 	}
-
+	/**
+	 * This function goes through all metadata and adds them into the meta.xml file
+	 * 
+	 * @param metahelper: metadatahelper 
+	 * @param element: topstruct element
+	 */
 	private void createDefaultValues(MetadatenHelper metahelper, DocStruct element) {
 		LinkedList<MetadatumImpl> lsMeta = new LinkedList<>();
 		LinkedList<MetaPerson> lsPers = new LinkedList<>();
@@ -251,7 +252,16 @@ public class MetsEnhancerStepPlugin implements IStepPluginVersion2 {
 			}
 		}
 	}
-
+	/**
+	 * Creates pagination in the `meta.xml` file.
+	 *
+	 * This method verifies that the file paths are valid and checks whether the 
+	 * media folder exists and is not empty. If the media folder is missing or empty, 
+	 * it then checks if the master folder exists and contains content.
+	 * 
+	 * Finally, it calls the `addPage` method to recursively add all pages.
+	 * @throws: Exceptions
+	 */
 	public void createPagination(DocStruct physicaldocstruct, DocStruct log, DigitalDocument dd)
 			throws TypeNotAllowedForParentException, IOException, SwapException, InterruptedException, DAOException {
 		MetadataType MDTypeForPath = prefs.getMetadataTypeByName("pathimagefiles");
@@ -280,7 +290,13 @@ public class MetsEnhancerStepPlugin implements IStepPluginVersion2 {
 
 		// Retrieve and sort image files from the process's image directory
 		File imagesDirectory = new File(process.getImagesTifDirectory(false));
-		if (imagesDirectory.isDirectory()) {
+		if (!StorageProvider.getInstance().isFileExists(imagesDirectory.toPath()) || imagesDirectory.listFiles().length == 0) {
+		    imagesDirectory = new File(process.getImagesOrigDirectory(false));
+		    if (imagesDirectory.listFiles().length == 0) {
+		        imagesDirectory = new File(process.getImagesTifDirectory(false));
+		    }
+		}
+		
 			List<File> imageFiles = Arrays.asList(imagesDirectory.listFiles(new FilenameFilter() {
 
 				@Override
@@ -319,9 +335,18 @@ public class MetsEnhancerStepPlugin implements IStepPluginVersion2 {
 				addPage(physicaldocstruct, log, dd, file, pageNo);
 
 			}
-		}
+		
 	}
-
+	/**
+	 * This function recursevly goes through all pages and adds them into the meta.xml file
+	 * Depending on the config file there will be wirtten different thins into the orderlabel
+	 * @param physicaldocstruct: physicaldocstruct
+	 * @param log: logicaldocstruct
+	 * @param dd: digital document
+	 * @param imageFile: the image file associated with the page being added
+	 * @param pageNo: int to count up which page will be added
+	 * @throws Exceptions
+	 */
 	private void addPage(DocStruct physicaldocstruct, DocStruct log, DigitalDocument dd, File imageFile, int pageNo)
 			throws TypeNotAllowedForParentException, IOException, InterruptedException, SwapException, DAOException {
 
@@ -374,7 +399,6 @@ public class MetsEnhancerStepPlugin implements IStepPluginVersion2 {
 	@Override
 	public PluginReturnValue run() {
 		boolean successful = true;
-		// your logic goes here
 
 		log.info("MetsEnhancer step plugin executed");
 		if (!successful) {
