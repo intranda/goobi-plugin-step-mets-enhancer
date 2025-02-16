@@ -40,4 +40,4 @@ The plugin is configured in the file `plugin_intranda_step_mets_enhancer.xml` as
 Parameter               | Explanation
 ------------------------|------------------------------------
 | `<createPagination>`   | The value ‘true’ can be used here to specify whether pagination should be created automatically. This can also be defined using the ‘type’ attribute. The following types are available for pagination: `uncounted`, `roman`, `ROMAN` or `arabic` |
-| `<addMetadata>`        | Further metadata to be added to the top-level structural element can be defined in the configuration here. The `type` attribute defines the desired metadata type as it is available in the rule set, and the `value` attribute is used to specify the value to be used. |
+| `<addMetadata>`        | Further metadata to be added to the top-level structural element can be defined in the configuration here. The `type` attribute defines the desired metadata type as it is available in the rule set, and the `value` attribute is used to specify the value to be used. This element is repeatable. |

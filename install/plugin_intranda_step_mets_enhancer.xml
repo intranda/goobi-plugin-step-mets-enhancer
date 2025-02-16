@@ -18,11 +18,10 @@
         	- roman
         	- arabic
         -->
-		<createPagination type="ROMAN">true</createPagination>
+		<createPagination type="arabic">true</createPagination>
 
-		<!-- list of metadata to be added to the topstruct element 
+		<!-- list of metadata to be added to the topstruct element -->
 		<addMetadata type="singleDigCollection" value="Maps" />
-		-->
 
 	</config>
 
