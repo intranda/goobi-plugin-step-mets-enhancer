@@ -3,6 +3,10 @@ title: Enrich METS file
 identifier: intranda_step_mets_enhancer
 description: Step Plugin for the automatic enrichment of METS files with the associated media files 
 published: true
+keywords:
+    - Goobi workflow
+    - Plugin
+    - Step Plugin
 ---
 
 ## Introduction
