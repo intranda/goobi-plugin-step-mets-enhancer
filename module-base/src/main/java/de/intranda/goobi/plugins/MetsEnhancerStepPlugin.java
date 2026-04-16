@@ -1,7 +1,6 @@
 package de.intranda.goobi.plugins;
 
 import java.io.File;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -261,23 +260,26 @@ public class MetsEnhancerStepPlugin implements IStepPluginVersion2 {
 
         // Retrieve and sort image files from the process's image directory
         File imagesDirectory = new File(process.getImagesTifDirectory(false));
-        if (!StorageProvider.getInstance().isFileExists(imagesDirectory.toPath()) || imagesDirectory.listFiles().length == 0) {
+        File[] tifFiles = imagesDirectory.listFiles();
+        if (!StorageProvider.getInstance().isFileExists(imagesDirectory.toPath()) || tifFiles == null || tifFiles.length == 0) {
             imagesDirectory = new File(process.getImagesOrigDirectory(false));
-            if (imagesDirectory.listFiles().length == 0) {
+            File[] origFiles = imagesDirectory.listFiles();
+            if (origFiles == null || origFiles.length == 0) {
                 imagesDirectory = new File(process.getImagesTifDirectory(false));
             }
         }
 
-        List<File> imageFiles = Arrays.asList(imagesDirectory.listFiles(new FilenameFilter() {
+        File[] directoryListing = imagesDirectory.listFiles();
+        if (directoryListing == null) {
+            // no files available, abort pagination creation
+            return;
+        }
 
-            @Override
-            public boolean accept(File dir, String name) {
-                return name.toLowerCase().endsWith("tif") || name.toLowerCase().endsWith("tiff")
-                        || name.toLowerCase().endsWith("jpg") || name.toLowerCase().endsWith("jpeg")
-                        || name.toLowerCase().endsWith("jp2") || name.toLowerCase().endsWith("png")
-                        || name.toLowerCase().endsWith("pdf");
-            }
-        }));
+        List<File> imageFiles = Arrays.asList(directoryListing).stream().filter(f -> {
+            String name = f.getName().toLowerCase();
+            return name.endsWith("tif") || name.endsWith("tiff") || name.endsWith("jpg") || name.endsWith("jpeg")
+                    || name.endsWith("jp2") || name.endsWith("png") || name.endsWith("pdf");
+        }).collect(java.util.stream.Collectors.toList());
 
         Collections.sort(imageFiles);
 
