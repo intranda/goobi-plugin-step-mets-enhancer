@@ -47,6 +47,7 @@ import de.sub.goobi.helper.StorageProvider;
 import de.sub.goobi.helper.exceptions.DAOException;
 import de.sub.goobi.helper.exceptions.SwapException;
 import de.sub.goobi.metadaten.MetaPerson;
+import de.sub.goobi.metadaten.MetadataGroupIdRegistry;
 import de.sub.goobi.metadaten.MetadataGroupImpl;
 import de.sub.goobi.metadaten.Metadaten;
 import de.sub.goobi.metadaten.MetadatenHelper;
@@ -207,7 +208,7 @@ public class MetsEnhancerStepPlugin implements IStepPluginVersion2 {
                         md.setValue("");
                     }
                 }
-                MetadataGroupImpl mgi = new MetadataGroupImpl(prefs, process, mg, null, "", "", 0);
+                MetadataGroupImpl mgi = new MetadataGroupImpl(prefs, process, mg, null, new MetadataGroupIdRegistry(), "", 0);
                 metaGroups.add(mgi);
                 for (MetadatumImpl meta : mgi.getMetadataList()) {
                     meta.getSelectedItem();
